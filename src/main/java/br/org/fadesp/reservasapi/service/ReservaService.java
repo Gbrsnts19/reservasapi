@@ -5,10 +5,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.org.fadesp.reservasapi.domain.Reserva;
 import br.org.fadesp.reservasapi.domain.Sala;
+import br.org.fadesp.reservasapi.domain.StatusReserva;
 import br.org.fadesp.reservasapi.dto.ReservaRequest;
 import br.org.fadesp.reservasapi.dto.ReservaResponse;
 import br.org.fadesp.reservasapi.exception.RecursoNaoEncontradoException;
 import br.org.fadesp.reservasapi.exception.RegraNegocioException;
+import br.org.fadesp.reservasapi.exception.ConflitoHorarioException;
 import br.org.fadesp.reservasapi.repository.ReservaRepository;
 import br.org.fadesp.reservasapi.repository.SalaRepository;
 
@@ -32,6 +34,19 @@ public class ReservaService {
         Sala sala = salaRepository.findById(request.getSalaId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Sala não encontrada: " + request.getSalaId()));
+
+        boolean temConflito = reservaRepository.existsConflito(
+                sala.getId(),
+                request.getData(),
+                request.getHoraInicio(),
+                request.getHoraFim(),
+                StatusReserva.ATIVA
+        );
+
+        if (temConflito) {
+            throw new ConflitoHorarioException(
+                    "Já existe uma reserva ativa para esta sala no horário informado");
+        }
 
         Reserva reserva = new Reserva(
                 sala,

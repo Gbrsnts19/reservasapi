@@ -30,7 +30,12 @@ public class ApiExceptionHandler {
     @ExceptionHandler(RegraNegocioException.class)
     public ResponseEntity<Map<String, Object>> handleBusiness(RegraNegocioException ex) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
-}
+    }
+
+    @ExceptionHandler(ConflitoHorarioException.class)
+    public ResponseEntity<Map<String, Object>> handleConflict(ConflitoHorarioException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
 
     private ResponseEntity<Map<String, Object>> build(HttpStatus status, String message) {
         Map<String, Object> body = new HashMap<>();
