@@ -27,6 +27,11 @@ public class ApiExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, message);
     }
 
+    @ExceptionHandler(RegraNegocioException.class)
+    public ResponseEntity<Map<String, Object>> handleBusiness(RegraNegocioException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+}
+
     private ResponseEntity<Map<String, Object>> build(HttpStatus status, String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now().toString());

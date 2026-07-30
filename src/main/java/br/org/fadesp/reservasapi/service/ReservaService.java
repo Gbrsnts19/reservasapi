@@ -1,0 +1,47 @@
+package br.org.fadesp.reservasapi.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import br.org.fadesp.reservasapi.domain.Reserva;
+import br.org.fadesp.reservasapi.domain.Sala;
+import br.org.fadesp.reservasapi.dto.ReservaRequest;
+import br.org.fadesp.reservasapi.dto.ReservaResponse;
+import br.org.fadesp.reservasapi.exception.RecursoNaoEncontradoException;
+import br.org.fadesp.reservasapi.exception.RegraNegocioException;
+import br.org.fadesp.reservasapi.repository.ReservaRepository;
+import br.org.fadesp.reservasapi.repository.SalaRepository;
+
+@Service
+public class ReservaService {
+
+    private final ReservaRepository reservaRepository;
+    private final SalaRepository salaRepository;
+
+    public ReservaService(ReservaRepository reservaRepository, SalaRepository salaRepository) {
+        this.reservaRepository = reservaRepository;
+        this.salaRepository = salaRepository;
+    }
+
+    @Transactional
+    public ReservaResponse criar(ReservaRequest request) {
+        if (!request.getHoraFim().isAfter(request.getHoraInicio())) {
+            throw new RegraNegocioException("A hora de fim deve ser posterior à hora de início");
+        }
+
+        Sala sala = salaRepository.findById(request.getSalaId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Sala não encontrada: " + request.getSalaId()));
+
+        Reserva reserva = new Reserva(
+                sala,
+                request.getData(),
+                request.getHoraInicio(),
+                request.getHoraFim(),
+                request.getResponsavel()
+        );
+
+        Reserva salva = reservaRepository.save(reserva);
+        return ReservaResponse.from(salva);
+    }
+}
