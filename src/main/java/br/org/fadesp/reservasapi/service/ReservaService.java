@@ -59,4 +59,17 @@ public class ReservaService {
         Reserva salva = reservaRepository.save(reserva);
         return ReservaResponse.from(salva);
     }
+
+    @Transactional
+    public ReservaResponse cancelar(Long id) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Reserva não encontrada: " + id));
+
+        if (reserva.getStatus() == StatusReserva.CANCELADA) {
+            throw new RegraNegocioException("Reserva já está cancelada");
+        }
+
+        reserva.setStatus(StatusReserva.CANCELADA);
+        return ReservaResponse.from(reserva);
+    }
 }

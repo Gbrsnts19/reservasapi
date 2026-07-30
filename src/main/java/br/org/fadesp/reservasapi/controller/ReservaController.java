@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import br.org.fadesp.reservasapi.dto.ReservaRequest;
 import br.org.fadesp.reservasapi.dto.ReservaResponse;
@@ -26,5 +28,10 @@ public class ReservaController {
     @ResponseStatus(HttpStatus.CREATED)
     public ReservaResponse criar(@Valid @RequestBody ReservaRequest request) {
         return reservaService.criar(request);
+    }
+
+    @DeleteMapping("/{id}")
+    public ReservaResponse cancelar(@PathVariable Long id) {
+        return reservaService.cancelar(id);
     }
 }
