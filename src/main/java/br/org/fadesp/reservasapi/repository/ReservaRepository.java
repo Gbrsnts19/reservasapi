@@ -2,6 +2,7 @@ package br.org.fadesp.reservasapi.repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,4 +29,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             @Param("horaFim") LocalTime horaFim,
             @Param("status") StatusReserva status
     );
+
+    List<Reserva> findByDataOrderByHoraInicioAsc(LocalDate data);
 }

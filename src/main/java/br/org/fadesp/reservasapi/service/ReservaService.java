@@ -1,5 +1,8 @@
 package br.org.fadesp.reservasapi.service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,5 +74,12 @@ public class ReservaService {
 
         reserva.setStatus(StatusReserva.CANCELADA);
         return ReservaResponse.from(reserva);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservaResponse> listarAgenda(LocalDate data) {
+        return reservaRepository.findByDataOrderByHoraInicioAsc(data).stream()
+                .map(ReservaResponse::from)
+                .toList();
     }
 }
