@@ -77,8 +77,12 @@ public class ReservaService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReservaResponse> listarAgenda(LocalDate data) {
-        return reservaRepository.findByDataOrderByHoraInicioAsc(data).stream()
+    public List<ReservaResponse> listarAgenda(LocalDate data, StatusReserva status) {
+        List<Reserva> reservas = status == null
+                ? reservaRepository.findByDataOrderByHoraInicioAsc(data)
+                : reservaRepository.findByDataAndStatusOrderByHoraInicioAsc(data, status);
+
+        return reservas.stream()
                 .map(ReservaResponse::from)
                 .toList();
     }

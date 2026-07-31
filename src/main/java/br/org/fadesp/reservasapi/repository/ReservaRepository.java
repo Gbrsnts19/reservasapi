@@ -31,4 +31,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     );
 
     List<Reserva> findByDataOrderByHoraInicioAsc(LocalDate data);
+
+    List<Reserva> findByDataAndStatusOrderByHoraInicioAsc(LocalDate data, StatusReserva status);
 }

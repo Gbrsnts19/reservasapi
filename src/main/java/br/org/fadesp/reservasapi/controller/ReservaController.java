@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.org.fadesp.reservasapi.domain.StatusReserva;
 import br.org.fadesp.reservasapi.dto.ReservaRequest;
 import br.org.fadesp.reservasapi.dto.ReservaResponse;
 import br.org.fadesp.reservasapi.service.ReservaService;
@@ -38,9 +39,10 @@ public class ReservaController {
 
     @GetMapping("/agenda")
     public List<ReservaResponse> listarAgenda(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            @RequestParam(required = false) StatusReserva status
     ) {
-        return reservaService.listarAgenda(data);
+        return reservaService.listarAgenda(data, status);
     }
 
     @GetMapping("/{id}")
