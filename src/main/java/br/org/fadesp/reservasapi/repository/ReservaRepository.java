@@ -21,13 +21,15 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
               AND r.status = :status
               AND r.horaInicio < :horaFim
               AND r.horaFim > :horaInicio
+              AND (:reservaId IS NULL OR r.id <> :reservaId)
             """)
     boolean existsConflito(
             @Param("salaId") Long salaId,
             @Param("data") LocalDate data,
             @Param("horaInicio") LocalTime horaInicio,
             @Param("horaFim") LocalTime horaFim,
-            @Param("status") StatusReserva status
+            @Param("status") StatusReserva status,
+            @Param("reservaId") Long reservaId
     );
 
     List<Reserva> findByDataOrderByHoraInicioAsc(LocalDate data);

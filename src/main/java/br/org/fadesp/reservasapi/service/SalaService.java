@@ -34,6 +34,18 @@ public class SalaService {
         return SalaResponse.from(salva);
     }
 
+    @Transactional
+    public SalaResponse atualizar(Long id, SalaRequest request) {
+        Sala sala = salaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Sala não encontrada: " + id));
+
+        sala.setNome(request.getNome());
+        sala.setTipo(request.getTipo());
+        sala.setCapacidade(request.getCapacidade());
+
+        return SalaResponse.from(sala);
+    }
+
     @Transactional(readOnly = true)
     public List<SalaResponse> listar() {
         return salaRepository.findAll().stream()
@@ -53,7 +65,8 @@ public class SalaService {
                         data,
                         inicio,
                         fim,
-                        StatusReserva.ATIVA
+                        StatusReserva.ATIVA,
+                        null
                 ))
                 .map(SalaResponse::from)
                 .toList();

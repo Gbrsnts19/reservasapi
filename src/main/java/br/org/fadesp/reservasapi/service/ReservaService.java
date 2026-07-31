@@ -11,9 +11,9 @@ import br.org.fadesp.reservasapi.domain.Sala;
 import br.org.fadesp.reservasapi.domain.StatusReserva;
 import br.org.fadesp.reservasapi.dto.ReservaRequest;
 import br.org.fadesp.reservasapi.dto.ReservaResponse;
+import br.org.fadesp.reservasapi.exception.ConflitoHorarioException;
 import br.org.fadesp.reservasapi.exception.RecursoNaoEncontradoException;
 import br.org.fadesp.reservasapi.exception.RegraNegocioException;
-import br.org.fadesp.reservasapi.exception.ConflitoHorarioException;
 import br.org.fadesp.reservasapi.repository.ReservaRepository;
 import br.org.fadesp.reservasapi.repository.SalaRepository;
 
@@ -30,26 +30,9 @@ public class ReservaService {
 
     @Transactional
     public ReservaResponse criar(ReservaRequest request) {
-        if (!request.getHoraFim().isAfter(request.getHoraInicio())) {
-            throw new RegraNegocioException("A hora de fim deve ser posterior à hora de início");
-        }
-
-        Sala sala = salaRepository.findById(request.getSalaId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
-                        "Sala não encontrada: " + request.getSalaId()));
-
-        boolean temConflito = reservaRepository.existsConflito(
-                sala.getId(),
-                request.getData(),
-                request.getHoraInicio(),
-                request.getHoraFim(),
-                StatusReserva.ATIVA
-        );
-
-        if (temConflito) {
-            throw new ConflitoHorarioException(
-                    "Já existe uma reserva ativa para esta sala no horário informado");
-        }
+        validarHorario(request);
+        Sala sala = buscarSala(request.getSalaId());
+        validarConflito(sala.getId(), request, null);
 
         Reserva reserva = new Reserva(
                 sala,
@@ -61,6 +44,28 @@ public class ReservaService {
 
         Reserva salva = reservaRepository.save(reserva);
         return ReservaResponse.from(salva);
+    }
+
+    @Transactional
+    public ReservaResponse atualizar(Long id, ReservaRequest request) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Reserva não encontrada: " + id));
+
+        if (reserva.getStatus() == StatusReserva.CANCELADA) {
+            throw new RegraNegocioException("Não é possível editar uma reserva cancelada");
+        }
+
+        validarHorario(request);
+        Sala sala = buscarSala(request.getSalaId());
+        validarConflito(sala.getId(), request, id);
+
+        reserva.setSala(sala);
+        reserva.setData(request.getData());
+        reserva.setHoraInicio(request.getHoraInicio());
+        reserva.setHoraFim(request.getHoraFim());
+        reserva.setResponsavel(request.getResponsavel());
+
+        return ReservaResponse.from(reserva);
     }
 
     @Transactional
@@ -92,5 +97,32 @@ public class ReservaService {
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Reserva não encontrada: " + id));
         return ReservaResponse.from(reserva);
+    }
+
+    private void validarHorario(ReservaRequest request) {
+        if (!request.getHoraFim().isAfter(request.getHoraInicio())) {
+            throw new RegraNegocioException("A hora de fim deve ser posterior à hora de início");
+        }
+    }
+
+    private Sala buscarSala(Long salaId) {
+        return salaRepository.findById(salaId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Sala não encontrada: " + salaId));
+    }
+
+    private void validarConflito(Long salaId, ReservaRequest request, Long reservaIdIgnorada) {
+        boolean temConflito = reservaRepository.existsConflito(
+                salaId,
+                request.getData(),
+                request.getHoraInicio(),
+                request.getHoraFim(),
+                StatusReserva.ATIVA,
+                reservaIdIgnorada
+        );
+
+        if (temConflito) {
+            throw new ConflitoHorarioException(
+                    "Já existe uma reserva ativa para esta sala no horário informado");
+        }
     }
 }
