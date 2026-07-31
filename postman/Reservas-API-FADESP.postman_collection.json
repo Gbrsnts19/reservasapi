@@ -1,0 +1,609 @@
+{
+  "info": {
+    "_postman_id": "fadesp-reservas-api-2026",
+    "name": "Reservas API - FADESP",
+    "description": "Collection completa da API de Reservas.\n\n1. ./mvnw spring-boot:run\n2. Importe collection + environment\n3. Selecione Local - Reservas API\n4. Use a pasta 04 para demo em ordem\n\nH2 zera ao reiniciar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "data",
+      "value": "2026-08-01"
+    },
+    {
+      "key": "salaId",
+      "value": "1"
+    },
+    {
+      "key": "reservaId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Salas",
+      "item": [
+        {
+          "name": "POST Criar Sala FADESP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/salas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Sala FADESP\",\n  \"tipo\": \"COLETIVA\",\n  \"capacidade\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "201 Created"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) pm.collectionVariables.set('salaId', String(json.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Criar Auditorio Norte",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/salas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Auditorio Norte\",\n  \"tipo\": \"AUDITORIO\",\n  \"capacidade\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "201 Created"
+          }
+        },
+        {
+          "name": "GET Listar salas ativas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas",
+            "description": "200 - so ativas"
+          }
+        },
+        {
+          "name": "GET Buscar sala por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas/{{salaId}}"
+          }
+        },
+        {
+          "name": "PUT Atualizar sala",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/salas/{{salaId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Sala FADESP Premium\",\n  \"tipo\": \"INDIVIDUAL\",\n  \"capacidade\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE Excluir sala (ok)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas/{{salaId}}",
+            "description": "200 ativa=false sem reserva ATIVA"
+          }
+        },
+        {
+          "name": "DELETE Excluir sala com reserva ativa - 400",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas/{{salaId}}",
+            "description": "400"
+          }
+        },
+        {
+          "name": "GET Salas livres 09:00-10:00",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas/livres?data={{data}}&inicio=09:00&fim=10:00"
+          }
+        },
+        {
+          "name": "GET Salas livres 15:00-16:00",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas/livres?data={{data}}&inicio=15:00&fim=16:00"
+          }
+        },
+        {
+          "name": "GET Salas livres horario invalido - 400",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas/livres?data={{data}}&inicio=10:00&fim=09:00",
+            "description": "400"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Reservas",
+      "item": [
+        {
+          "name": "POST Reserva Gabriel 09:00-10:00",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"09:00\",\n  \"horaFim\": \"10:00\",\n  \"responsavel\": \"Gabriel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "201 ATIVA"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) pm.collectionVariables.set('reservaId', String(json.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Conflito Nicole 09:30-10:30 - 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"09:30\",\n  \"horaFim\": \"10:30\",\n  \"responsavel\": \"Nicole\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "409"
+          }
+        },
+        {
+          "name": "POST Nicole 10:00-11:00 (encostado)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"10:00\",\n  \"horaFim\": \"11:00\",\n  \"responsavel\": \"Nicole\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "201"
+          }
+        },
+        {
+          "name": "GET Reserva por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reservas/{{reservaId}}"
+          }
+        },
+        {
+          "name": "PUT Atualizar reserva",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas/{{reservaId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"11:00\",\n  \"horaFim\": \"12:00\",\n  \"responsavel\": \"Gabriel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST Hora fim menor que inicio - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"10:00\",\n  \"horaFim\": \"09:00\",\n  \"responsavel\": \"Gabriel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "400"
+          }
+        },
+        {
+          "name": "POST Data no passado - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"2020-01-15\",\n  \"horaInicio\": \"09:00\",\n  \"horaFim\": \"10:00\",\n  \"responsavel\": \"Gabriel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "400"
+          }
+        },
+        {
+          "name": "POST Reserva em sala excluida - 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"09:00\",\n  \"horaFim\": \"10:00\",\n  \"responsavel\": \"Gabriel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "400"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Cancelamento e agenda",
+      "item": [
+        {
+          "name": "DELETE Cancelar reserva",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/reservas/{{reservaId}}",
+            "description": "200 CANCELADA"
+          }
+        },
+        {
+          "name": "DELETE Cancelar de novo - 400",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/reservas/{{reservaId}}",
+            "description": "400"
+          }
+        },
+        {
+          "name": "GET Agenda do dia",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reservas/agenda?data={{data}}"
+          }
+        },
+        {
+          "name": "GET Agenda so ATIVAS",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reservas/agenda?data={{data}}&status=ATIVA"
+          }
+        },
+        {
+          "name": "GET Agenda so CANCELADAS",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reservas/agenda?data={{data}}&status=CANCELADA"
+          }
+        },
+        {
+          "name": "POST Remarcar horario apos cancelamento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"09:00\",\n  \"horaFim\": \"10:00\",\n  \"responsavel\": \"Gabriel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "201"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Fluxo demo (ordem sugerida)",
+      "description": "Execute em sequencia para demonstracao.",
+      "item": [
+        {
+          "name": "1 POST Sala FADESP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/salas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Sala FADESP\",\n  \"tipo\": \"COLETIVA\",\n  \"capacidade\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) pm.collectionVariables.set('salaId', String(json.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2 POST Auditorio Norte",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/salas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Auditorio Norte\",\n  \"tipo\": \"AUDITORIO\",\n  \"capacidade\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3 POST Reserva Gabriel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"09:00\",\n  \"horaFim\": \"10:00\",\n  \"responsavel\": \"Gabriel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.id) pm.collectionVariables.set('reservaId', String(json.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4 POST Conflito 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"09:30\",\n  \"horaFim\": \"10:30\",\n  \"responsavel\": \"Nicole\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "5 POST Encostado ok",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/reservas",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salaId\": {{salaId}},\n  \"data\": \"{{data}}\",\n  \"horaInicio\": \"10:00\",\n  \"horaFim\": \"11:00\",\n  \"responsavel\": \"Nicole\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "6 GET Agenda",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reservas/agenda?data={{data}}"
+          }
+        },
+        {
+          "name": "7 DELETE Cancelar reserva Gabriel",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/reservas/{{reservaId}}"
+          }
+        },
+        {
+          "name": "8 GET Salas livres 09:00-10:00",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas/livres?data={{data}}&inicio=09:00&fim=10:00"
+          }
+        },
+        {
+          "name": "9 DELETE Excluir Sala FADESP",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/salas/{{salaId}}",
+            "description": "Ok apos cancelar reserva ATIVA"
+          }
+        }
+      ]
+    }
+  ]
+}
