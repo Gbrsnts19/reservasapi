@@ -11,8 +11,8 @@
 	<groupId>br.org.fadesp</groupId>
 	<artifactId>reservas-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>reservas-api</name>
+	<description>API REST para gerenciamento de salas e reservas de coworking</description>
 	<url/>
 	<licenses>
 		<license/>
