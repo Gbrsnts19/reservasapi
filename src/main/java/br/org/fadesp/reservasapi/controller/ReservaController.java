@@ -43,6 +43,11 @@ public class ReservaController {
         return reservaService.listarAgenda(data);
     }
 
+    @GetMapping("/{id}")
+    public ReservaResponse buscarPorId(@PathVariable Long id) {
+        return reservaService.buscarPorId(id);
+    }
+
     @DeleteMapping("/{id}")
     public ReservaResponse cancelar(@PathVariable Long id) {
         return reservaService.cancelar(id);

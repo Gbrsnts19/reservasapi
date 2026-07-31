@@ -82,4 +82,11 @@ public class ReservaService {
                 .map(ReservaResponse::from)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public ReservaResponse buscarPorId(Long id) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Reserva não encontrada: " + id));
+        return ReservaResponse.from(reserva);
+    }
 }
