@@ -30,7 +30,7 @@ public class ReservaService {
 
     @Transactional
     public ReservaResponse criar(ReservaRequest request) {
-        validarHorario(request);
+        validarRequest(request);
         Sala sala = buscarSala(request.getSalaId());
         validarConflito(sala.getId(), request, null);
 
@@ -55,7 +55,7 @@ public class ReservaService {
             throw new RegraNegocioException("Não é possível editar uma reserva cancelada");
         }
 
-        validarHorario(request);
+        validarRequest(request);
         Sala sala = buscarSala(request.getSalaId());
         validarConflito(sala.getId(), request, id);
 
@@ -99,7 +99,11 @@ public class ReservaService {
         return ReservaResponse.from(reserva);
     }
 
-    private void validarHorario(ReservaRequest request) {
+    private void validarRequest(ReservaRequest request) {
+        if (request.getData().isBefore(LocalDate.now())) {
+            throw new RegraNegocioException("A data da reserva não pode ser no passado");
+        }
+
         if (!request.getHoraFim().isAfter(request.getHoraInicio())) {
             throw new RegraNegocioException("A hora de fim deve ser posterior à hora de início");
         }
