@@ -70,7 +70,7 @@ public class ReservaService {
 
     @Transactional
     public ReservaResponse cancelar(Long id) {
-        Reserva reserva = reservaRepository.findById(id)
+        Reserva reserva = reservaRepository.findByIdWithSala(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Reserva não encontrada: " + id));
 
         if (reserva.getStatus() == StatusReserva.CANCELADA) {
@@ -94,7 +94,7 @@ public class ReservaService {
 
     @Transactional(readOnly = true)
     public ReservaResponse buscarPorId(Long id) {
-        Reserva reserva = reservaRepository.findById(id)
+        Reserva reserva = reservaRepository.findByIdWithSala(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Reserva não encontrada: " + id));
         return ReservaResponse.from(reserva);
     }

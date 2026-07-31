@@ -3,6 +3,7 @@ package br.org.fadesp.reservasapi.repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,7 +33,30 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             @Param("reservaId") Long reservaId
     );
 
-    List<Reserva> findByDataOrderByHoraInicioAsc(LocalDate data);
+    @Query("""
+            SELECT DISTINCT r FROM Reserva r
+            JOIN FETCH r.sala
+            WHERE r.data = :data
+            ORDER BY r.horaInicio ASC
+            """)
+    List<Reserva> findByDataOrderByHoraInicioAsc(@Param("data") LocalDate data);
 
-    List<Reserva> findByDataAndStatusOrderByHoraInicioAsc(LocalDate data, StatusReserva status);
+    @Query("""
+            SELECT DISTINCT r FROM Reserva r
+            JOIN FETCH r.sala
+            WHERE r.data = :data
+              AND r.status = :status
+            ORDER BY r.horaInicio ASC
+            """)
+    List<Reserva> findByDataAndStatusOrderByHoraInicioAsc(
+            @Param("data") LocalDate data,
+            @Param("status") StatusReserva status
+    );
+
+    @Query("""
+            SELECT r FROM Reserva r
+            JOIN FETCH r.sala
+            WHERE r.id = :id
+            """)
+    Optional<Reserva> findByIdWithSala(@Param("id") Long id);
 }
