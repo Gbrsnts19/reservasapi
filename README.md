@@ -285,4 +285,4 @@ src/main/java/br/org/fadesp/reservasapi/
 
 ## Autor
 
-Gabriel de Oliveira Santos
+Gabriel de Oliveira Carvalho Santos
