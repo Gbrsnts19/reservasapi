@@ -36,8 +36,7 @@ public class SalaService {
 
     @Transactional
     public SalaResponse atualizar(Long id, SalaRequest request) {
-        Sala sala = salaRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Sala não encontrada: " + id));
+        Sala sala = buscarSalaAtiva(id);
 
         sala.setNome(request.getNome());
         sala.setTipo(request.getTipo());
@@ -46,9 +45,27 @@ public class SalaService {
         return SalaResponse.from(sala);
     }
 
+    @Transactional
+    public SalaResponse excluir(Long id) {
+        Sala sala = salaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Sala não encontrada: " + id));
+
+        if (!sala.isAtiva()) {
+            throw new RegraNegocioException("Sala já está excluída");
+        }
+
+        if (reservaRepository.existsBySalaIdAndStatus(id, StatusReserva.ATIVA)) {
+            throw new RegraNegocioException(
+                    "Não é possível excluir uma sala com reservas ativas");
+        }
+
+        sala.setAtiva(false);
+        return SalaResponse.from(sala);
+    }
+
     @Transactional(readOnly = true)
     public List<SalaResponse> listar() {
-        return salaRepository.findAll().stream()
+        return salaRepository.findByAtivaTrue().stream()
                 .map(SalaResponse::from)
                 .toList();
     }
@@ -59,7 +76,7 @@ public class SalaService {
             throw new RegraNegocioException("A hora de fim deve ser posterior à hora de início");
         }
 
-        return salaRepository.findAll().stream()
+        return salaRepository.findByAtivaTrue().stream()
                 .filter(sala -> !reservaRepository.existsConflito(
                         sala.getId(),
                         data,
@@ -74,8 +91,11 @@ public class SalaService {
 
     @Transactional(readOnly = true)
     public SalaResponse buscarPorId(Long id) {
-        Sala sala = salaRepository.findById(id)
+        return SalaResponse.from(buscarSalaAtiva(id));
+    }
+
+    private Sala buscarSalaAtiva(Long id) {
+        return salaRepository.findByIdAndAtivaTrue(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Sala não encontrada: " + id));
-        return SalaResponse.from(sala);
     }
 }

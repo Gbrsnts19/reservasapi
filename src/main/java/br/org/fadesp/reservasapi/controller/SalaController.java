@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/salas")
-@Tag(name = "Salas", description = "Cadastro e consulta de salas")
+@Tag(name = "Salas", description = "Cadastro, consulta e exclusão de salas")
 public class SalaController {
 
     private final SalaService salaService;
@@ -72,5 +73,13 @@ public class SalaController {
             @Valid @RequestBody SalaRequest request
     ) {
         return salaService.atualizar(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public SalaResponse excluir(
+            @Parameter(description = "ID da sala", example = "1")
+            @PathVariable Long id
+    ) {
+        return salaService.excluir(id);
     }
 }

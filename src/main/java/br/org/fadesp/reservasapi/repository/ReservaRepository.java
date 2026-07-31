@@ -59,4 +59,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             WHERE r.id = :id
             """)
     Optional<Reserva> findByIdWithSala(@Param("id") Long id);
+
+    boolean existsBySalaIdAndStatus(Long salaId, StatusReserva status);
 }

@@ -164,6 +164,52 @@ class ReservaApiIntegrationTest {
                 .andExpect(jsonPath("$[0].responsavel").value("Gabriel"));
     }
 
+    @Test
+    void deveExcluirSalaSemReservaAtivaEImpedirNovaReserva() throws Exception {
+        long salaId = criarSala("Sala FADESP", "COLETIVA", 8);
+
+        mockMvc.perform(delete("/api/salas/{id}", salaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ativa").value(false));
+
+        mockMvc.perform(get("/api/salas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        mockMvc.perform(get("/api/salas/{id}", salaId))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(post("/api/reservas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reservaJson(salaId, dataFutura, "09:00", "10:00", "Gabriel")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Não é possível reservar uma sala excluída"));
+    }
+
+    @Test
+    void naoDeveExcluirSalaComReservaAtiva() throws Exception {
+        long salaId = criarSala("Sala FADESP", "COLETIVA", 8);
+        criarReserva(salaId, dataFutura, "09:00", "10:00", "Gabriel");
+
+        mockMvc.perform(delete("/api/salas/{id}", salaId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(
+                        "Não é possível excluir uma sala com reservas ativas"));
+    }
+
+    @Test
+    void deveExcluirSalaAposCancelarReservaAtiva() throws Exception {
+        long salaId = criarSala("Sala FADESP", "COLETIVA", 8);
+        long reservaId = criarReserva(salaId, dataFutura, "09:00", "10:00", "Gabriel");
+
+        mockMvc.perform(delete("/api/reservas/{id}", reservaId))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/api/salas/{id}", salaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ativa").value(false));
+    }
+
     private long criarSala(String nome, String tipo, int capacidade) throws Exception {
         MvcResult result = mockMvc.perform(post("/api/salas")
                         .contentType(MediaType.APPLICATION_JSON)

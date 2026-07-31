@@ -110,8 +110,14 @@ public class ReservaService {
     }
 
     private Sala buscarSala(Long salaId) {
-        return salaRepository.findById(salaId)
+        Sala sala = salaRepository.findById(salaId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Sala não encontrada: " + salaId));
+
+        if (!sala.isAtiva()) {
+            throw new RegraNegocioException("Não é possível reservar uma sala excluída");
+        }
+
+        return sala;
     }
 
     private void validarConflito(Long salaId, ReservaRequest request, Long reservaIdIgnorada) {

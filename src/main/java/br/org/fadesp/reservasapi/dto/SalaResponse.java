@@ -9,12 +9,14 @@ public class SalaResponse {
     private String nome;
     private TipoSala tipo;
     private Integer capacidade;
+    private boolean ativa;
 
-    public SalaResponse(Long id, String nome, TipoSala tipo, Integer capacidade) {
+    public SalaResponse(Long id, String nome, TipoSala tipo, Integer capacidade, boolean ativa) {
         this.id = id;
         this.nome = nome;
         this.tipo = tipo;
         this.capacidade = capacidade;
+        this.ativa = ativa;
     }
 
     public static SalaResponse from(Sala sala) {
@@ -22,7 +24,8 @@ public class SalaResponse {
                 sala.getId(),
                 sala.getNome(),
                 sala.getTipo(),
-                sala.getCapacidade()
+                sala.getCapacidade(),
+                sala.isAtiva()
         );
     }
 
@@ -40,5 +43,9 @@ public class SalaResponse {
 
     public Integer getCapacidade() {
         return capacidade;
+    }
+
+    public boolean isAtiva() {
+        return ativa;
     }
 }

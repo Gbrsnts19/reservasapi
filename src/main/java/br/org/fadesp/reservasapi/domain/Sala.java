@@ -27,6 +27,9 @@ public class Sala {
     @Column(nullable = false)
     private Integer capacidade;
 
+    @Column(nullable = false)
+    private boolean ativa = true;
+
     public Sala() {
     }
 
@@ -34,6 +37,7 @@ public class Sala {
         this.nome = nome;
         this.tipo = tipo;
         this.capacidade = capacidade;
+        this.ativa = true;
     }
 
     public Long getId() {
@@ -62,5 +66,13 @@ public class Sala {
 
     public void setCapacidade(Integer capacidade) {
         this.capacidade = capacidade;
+    }
+
+    public boolean isAtiva() {
+        return ativa;
+    }
+
+    public void setAtiva(boolean ativa) {
+        this.ativa = ativa;
     }
 }

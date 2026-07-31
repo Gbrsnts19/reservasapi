@@ -56,9 +56,10 @@ A API sobe em: [http://localhost:8080](http://localhost:8080)
 | Método | Caminho | Descrição |
 |--------|---------|-----------|
 | POST | `/api/salas` | Cadastrar sala |
-| GET | `/api/salas` | Listar salas |
-| GET | `/api/salas/{id}` | Buscar sala por id |
-| PUT | `/api/salas/{id}` | Atualizar sala |
+| GET | `/api/salas` | Listar salas ativas |
+| GET | `/api/salas/{id}` | Buscar sala ativa por id |
+| PUT | `/api/salas/{id}` | Atualizar sala ativa |
+| DELETE | `/api/salas/{id}` | Excluir sala (soft delete) |
 | GET | `/api/salas/livres` | Listar salas livres em um dia/horário |
 
 ### Reservas
@@ -88,6 +89,10 @@ A API sobe em: [http://localhost:8080](http://localhost:8080)
 - Não é possível editar reserva cancelada
 - Data da reserva não pode ser no passado
 - Hora de fim deve ser posterior à hora de início
+- Exclusão de sala é lógica (`ativa = false`)
+- Não é possível excluir sala com reservas **ATIVAS**
+- Não é possível criar/atualizar reserva em sala excluída
+- Listagens de salas (incluindo livres) consideram apenas salas ativas
 
 ## Exemplos de uso (curl)
 
@@ -120,6 +125,27 @@ curl -s http://localhost:8080/api/salas/1
 curl -s -X PUT http://localhost:8080/api/salas/1 \
   -H "Content-Type: application/json" \
   -d '{"nome":"Sala FADESP Premium","tipo":"INDIVIDUAL","capacidade":4}'
+```
+
+### 3.1. Excluir sala
+
+```bash
+# ok — sem reservas ativas
+curl -s -X DELETE http://localhost:8080/api/salas/1
+
+# 400 — sala com reserva ATIVA
+curl -s -X DELETE http://localhost:8080/api/salas/1
+
+# 400 — tentar reservar sala já excluída
+curl -s -X POST http://localhost:8080/api/reservas \
+  -H "Content-Type: application/json" \
+  -d '{
+    "salaId": 1,
+    "data": "2026-08-01",
+    "horaInicio": "09:00",
+    "horaFim": "10:00",
+    "responsavel": "Gabriel"
+  }'
 ```
 
 ### 4. Criar reserva
