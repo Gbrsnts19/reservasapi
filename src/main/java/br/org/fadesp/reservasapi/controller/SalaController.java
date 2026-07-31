@@ -19,10 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import br.org.fadesp.reservasapi.dto.SalaRequest;
 import br.org.fadesp.reservasapi.dto.SalaResponse;
 import br.org.fadesp.reservasapi.service.SalaService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/salas")
+@Tag(name = "Salas", description = "Cadastro e consulta de salas")
 public class SalaController {
 
     private final SalaService salaService;
@@ -44,20 +47,27 @@ public class SalaController {
 
     @GetMapping("/livres")
     public List<SalaResponse> listarLivres(
+            @Parameter(description = "Data da consulta", example = "2026-08-01")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            @Parameter(description = "Horário de início", example = "09:00")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime inicio,
+            @Parameter(description = "Horário de fim", example = "10:00")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime fim
     ) {
         return salaService.listarLivres(data, inicio, fim);
     }
 
     @GetMapping("/{id}")
-    public SalaResponse buscarPorId(@PathVariable Long id) {
+    public SalaResponse buscarPorId(
+            @Parameter(description = "ID da sala", example = "1")
+            @PathVariable Long id
+    ) {
         return salaService.buscarPorId(id);
     }
 
     @PutMapping("/{id}")
     public SalaResponse atualizar(
+            @Parameter(description = "ID da sala", example = "1")
             @PathVariable Long id,
             @Valid @RequestBody SalaRequest request
     ) {

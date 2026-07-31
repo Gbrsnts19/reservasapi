@@ -20,10 +20,13 @@ import br.org.fadesp.reservasapi.domain.StatusReserva;
 import br.org.fadesp.reservasapi.dto.ReservaRequest;
 import br.org.fadesp.reservasapi.dto.ReservaResponse;
 import br.org.fadesp.reservasapi.service.ReservaService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/reservas")
+@Tag(name = "Reservas", description = "Criação, consulta, atualização e cancelamento de reservas")
 public class ReservaController {
 
     private final ReservaService reservaService;
@@ -40,19 +43,25 @@ public class ReservaController {
 
     @GetMapping("/agenda")
     public List<ReservaResponse> listarAgenda(
+            @Parameter(description = "Data da agenda", example = "2026-08-01")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            @Parameter(description = "Filtro opcional de status (ATIVA ou CANCELADA)", example = "ATIVA")
             @RequestParam(required = false) StatusReserva status
     ) {
         return reservaService.listarAgenda(data, status);
     }
 
     @GetMapping("/{id}")
-    public ReservaResponse buscarPorId(@PathVariable Long id) {
+    public ReservaResponse buscarPorId(
+            @Parameter(description = "ID da reserva", example = "1")
+            @PathVariable Long id
+    ) {
         return reservaService.buscarPorId(id);
     }
 
     @PutMapping("/{id}")
     public ReservaResponse atualizar(
+            @Parameter(description = "ID da reserva", example = "1")
             @PathVariable Long id,
             @Valid @RequestBody ReservaRequest request
     ) {
@@ -60,7 +69,10 @@ public class ReservaController {
     }
 
     @DeleteMapping("/{id}")
-    public ReservaResponse cancelar(@PathVariable Long id) {
+    public ReservaResponse cancelar(
+            @Parameter(description = "ID da reserva", example = "1")
+            @PathVariable Long id
+    ) {
         return reservaService.cancelar(id);
     }
 }
