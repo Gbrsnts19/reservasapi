@@ -1,23 +1,30 @@
 package br.org.fadesp.reservasapi.service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.org.fadesp.reservasapi.domain.Sala;
+import br.org.fadesp.reservasapi.domain.StatusReserva;
 import br.org.fadesp.reservasapi.dto.SalaRequest;
 import br.org.fadesp.reservasapi.dto.SalaResponse;
 import br.org.fadesp.reservasapi.exception.RecursoNaoEncontradoException;
+import br.org.fadesp.reservasapi.exception.RegraNegocioException;
+import br.org.fadesp.reservasapi.repository.ReservaRepository;
 import br.org.fadesp.reservasapi.repository.SalaRepository;
 
 @Service
 public class SalaService {
 
     private final SalaRepository salaRepository;
+    private final ReservaRepository reservaRepository;
 
-    public SalaService(SalaRepository salaRepository) {
+    public SalaService(SalaRepository salaRepository, ReservaRepository reservaRepository) {
         this.salaRepository = salaRepository;
+        this.reservaRepository = reservaRepository;
     }
 
     @Transactional
@@ -30,6 +37,24 @@ public class SalaService {
     @Transactional(readOnly = true)
     public List<SalaResponse> listar() {
         return salaRepository.findAll().stream()
+                .map(SalaResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SalaResponse> listarLivres(LocalDate data, LocalTime inicio, LocalTime fim) {
+        if (!fim.isAfter(inicio)) {
+            throw new RegraNegocioException("A hora de fim deve ser posterior à hora de início");
+        }
+
+        return salaRepository.findAll().stream()
+                .filter(sala -> !reservaRepository.existsConflito(
+                        sala.getId(),
+                        data,
+                        inicio,
+                        fim,
+                        StatusReserva.ATIVA
+                ))
                 .map(SalaResponse::from)
                 .toList();
     }
